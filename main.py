@@ -82,7 +82,7 @@ class Turno:
         self.__paciente = paciente.obtener_dni()
         self.__medico = medico.obtener_matricula()
         self.__fecha_hora = fecha_hora
-        self.__especialidad = especialidad.obtener_especialidad()
+        self.__especialidad = especialidad
 
 
     def obtener_medico(self):
@@ -90,6 +90,10 @@ class Turno:
     
     def obtener_fecha_hora(self) -> datetime:
         return self.__fecha_hora
+    
+    #nuevo
+    def obtener_especialidad_turno(self):
+        return self.__especialidad
 
     def __str__(self) -> str:
         return f"Turno: Paciente: {self.__paciente} Medico: {self.__medico} Fecha y hora: {self.__fecha_hora} Especialidad: {self.__especialidad}"
@@ -155,13 +159,16 @@ class Clinica:
         matricula = medico.obtener_matricula()
         self.__medicos[matricula] = medico     
 
-    def agendar_turno(self,paciente,medico,fecha_hora:datetime):
+    def agendar_turno(self,paciente,medico,fecha_hora:datetime,especialidad):
         dni = paciente.obtener_dni()
         matricula = medico.obtener_matricula()
-        turno = Turno(paciente,medico,fecha_hora)
+        self.revisar_turno(matricula,fecha_hora,especialidad)
+        turno = Turno(paciente,medico,fecha_hora,especialidad)
         self.__turnos.append(turno)
         historia = self.__historias_clinicas[dni]
         historia.agregar_turno(turno)
+    def obtener_turnos(self):
+        return self.__turnos
     def agregar_especilidad_medico(self,medico,especialidad):
         
         medico.agrgar_especialidad(especialidad)
@@ -199,8 +206,8 @@ class Clinica:
 
 
 
-    def obtener_dia_semana_en_espanol(fecha_hora: datetime) -> str:
-        dias_semana = {0: "Lunes",1: "Martes",2: "Miércoles",3: "Jueves",4: "Viernes",5: "Sábado",6: "Domingo"}
+    def obtener_dia_semana_en_espanol(self,fecha_hora: datetime) -> str:
+        dias_semana = {0: "lunes",1: "martes",2: "miercoles",3: "jueves",4: "viernes",5: "sabado",6: "domingo"}
         return dias_semana[fecha_hora.weekday()]
     def obtener_especialidad_disponible(self,medico : Medico, dia_semana): #si no puede ser entrada matricula y get_medico
         for especialidad in medico.obtener_especialdades():
@@ -209,9 +216,9 @@ class Clinica:
         return None   
     
     def validar_especialdiad_en_dia(self,medico : Medico,especialidad_solicitada, dia_semana): #si no puede ser entrada matricula y get_medico
-        for especialidad in medico.obtener_especialdades:
+        for especialidad in medico.obtener_especialdades():
             if especialidad.obtener_especialidad() == especialidad_solicitada:
-                if dia_semana in especialidad.obtener_dias:
+                if dia_semana in especialidad.obtener_dias():
                     return True
                 
                 else:
@@ -240,10 +247,15 @@ class Clinica:
         else:
             raise EspecialidadNoExisteError(f"Especialidad de tipo {tipo} no existe")
     
-    def revisar_turno(self, matricula, fecha_hora):
+    def revisar_turno(self, matricula, fecha_hora, especialidad):
+        medico = self.get_medico(matricula)
         for turno in self.__turnos:  
-            if matricula == turno.medico and fecha_hora == turno.fecha_hora: 
+            if matricula == turno.obtener_medico() and fecha_hora == turno.obtener_fecha_hora(): 
                 raise TurnoDuplicadoError("No se puede agendar un turno con el medico y la fecha_hora por que ya existe")
+        dia = self.obtener_dia_semana_en_espanol(fecha_hora)
+        self.validar_especialdiad_en_dia(medico,especialidad,dia)
+        
+        
 
         
 
@@ -360,8 +372,9 @@ class CLI:
                     
                     
                     fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M") #fijarse que significa esto o cambiar por algo facil
-                    self.clinica.revisar_turno(matricula, fecha_hora)
-                    self.clinica.agendar_turno(paciente, medico, fecha_hora)
+                    
+                    #self.clinica.revisar_turno(matricula, fecha_hora,especialidad)
+                    self.clinica.agendar_turno(paciente, medico, fecha_hora,especialidad)
                 elif opcion == "4":
                     matricula = input("Matricula del Medico: ")
                     tipo = input("Nombre de Especialidad: ")
@@ -449,6 +462,10 @@ class CLI:
             except EspecialidadNoExisteError as e:
                 print(f'Error: {e}')
             except EspecialidadDiaInvalido as e:
+                print(f'Error: {e}')
+            except MedicoNoAtiendeEspecialidadError as e:
+                print(f'Error: {e}')
+            except MedicoNoTieneEsaEspecialdad as e:
                 print(f'Error: {e}')
             except ValueError as e:
                 print(f"Error en formato de fecha: {e}")
