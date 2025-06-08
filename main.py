@@ -24,6 +24,8 @@ class MedicoNoTieneEsaEspecialdad(Exception):
     pass
 class EspecielidadDuplicadaError(Exception):
     pass
+class EspecialidadDiaInvalido(Exception):
+    pass
 class Paciente:
     def __init__(self, dni:str, nombre:str, fecha_nacimiento:str):
         self.__dni = dni
@@ -216,6 +218,12 @@ class Clinica:
                     raise MedicoNoAtiendeEspecialidadError(f"El medico no atiende la especialidad {especialidad_solicitada} los dias {dia_semana}")
 
         raise MedicoNoTieneEsaEspecialdad(f"El medico no tiene la especialidad {especialidad_solicitada}")
+    def validar_dias(self,especialidad):
+
+        for dia in especialidad.obtener_dias():
+            if dia not in ['lunes','martes','miercoles','jueves','viernes','sabado','domingo']:
+                raise EspecialidadDiaInvalido("Los dias ingresados deben ser válidos")
+        
     def get_paciente(self,dni):
         if dni in self.__pacientes:
             return self.__pacientes[dni]
@@ -329,12 +337,15 @@ class CLI:
                                 if dia == 'fin':
                                     break
                                 dias.append(dia)
+                            
                             especialidad = Especialidad(tipo,dias)
+                            self.clinica.validar_dias(especialidad)
                         especialidades.append(especialidad)
                         #especialidad = self.clinica.get_especialidad(tipo)
                         
                     
                     self.clinica.validar_medico(matricula,nombre,especialidades)
+                    
                     medico = Medico(matricula, nombre, especialidades)
                     self.clinica.agregar_medico(medico)
                 
@@ -363,7 +374,9 @@ class CLI:
                             break
                         dias.append(dia)   
                     especialidad = Especialidad(tipo,dias)
+
                     self.clinica.validar_especialidad(medico,especialidad)
+                    self.clinica.validar_dias(especialidad)
                     self.clinica.agregar_especilidad_medico(medico,especialidad)
                 elif opcion == "5":
                     dni = input("DNI del paciente: ")
@@ -433,6 +446,10 @@ class CLI:
                 print(f'Error: {e}')
             except EspecielidadDuplicadaError as e:
                 print(f'Error: {e}')    
+            except EspecialidadNoExisteError as e:
+                print(f'Error: {e}')
+            except EspecialidadDiaInvalido as e:
+                print(f'Error: {e}')
             except ValueError as e:
                 print(f"Error en formato de fecha: {e}")
             except Exception as e:

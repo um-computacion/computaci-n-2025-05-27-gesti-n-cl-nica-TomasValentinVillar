@@ -31,5 +31,33 @@ class TestEspecialidades(unittest.TestCase):
     def test_registro_medico_especialidad_duplicado(self, mock_print, mock_input):
         self.__cli__.ejecutar()
         mock_print.assert_any_call('Error: No se puede agregar especialidad por que ya existe')
+    
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lune', 'dia','fin', 'fin',
+                     '0'])
+    @patch('builtins.print')
+    def test_registro_medico_especialidad_invalido(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: Los dias ingresados deben ser válidos')
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'miercoles','fin', 'fin',
+                     '4', '123', 'Pediatra', 'dia','fin','0'])
+    @patch('builtins.print')
+    def test_registro_especialidad_invalido(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: Los dias ingresados deben ser válidos')
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'miercoles','fin', 'fin',
+                     '4', '456', 'Pediatra', 'dia','fin','0'])
+    @patch('builtins.print')
+    def test_registro_especialidad_medico_no_existe(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: Médico con matrícula 456 no existe')
 if __name__ == '__main__':
     unittest.main() 
