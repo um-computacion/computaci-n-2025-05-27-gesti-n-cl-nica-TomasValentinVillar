@@ -1,0 +1,35 @@
+import unittest
+from main import Paciente, Medico, Turno, Receta, HistoriaClinica, Clinica, CLI, PacienteYaExisteError
+from unittest.mock import patch
+
+class TestEspecialidades(unittest.TestCase):
+
+    def setUp(self):
+        self.__cli__ = CLI()
+    
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin', 'fin',
+                     '4', '123', 'Pediatra', 'Viernes','fin','0'])
+    def test_especialidad_exitoso(self, patch_input):
+        self.__cli__.ejecutar()
+
+        medico = self.__cli__.clinica.get_medico('123')
+        self.assertIsNotNone(medico)
+        self.assertEqual(medico._Medico__especialidades[0].obtener_especialidad(), 'Cirujano')
+        self.assertEqual(medico._Medico__especialidades[1].obtener_especialidad(), 'Pediatra')
+        self.assertEqual(medico._Medico__especialidades[0].obtener_dias(), ['lunes','miercoles'])
+        self.assertEqual(medico._Medico__especialidades[1].obtener_dias(), ['viernes'])
+    
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin', 'fin',
+                     '4', '123', 'Cirujano', 'Viernes','fin','0'])
+    @patch('builtins.print')
+    def test_registro_medico_especialidad_duplicado(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: No se puede agregar especialidad por que ya existe')
+if __name__ == '__main__':
+    unittest.main() 

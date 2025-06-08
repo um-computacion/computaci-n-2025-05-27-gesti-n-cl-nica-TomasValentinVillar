@@ -57,8 +57,8 @@ class TestPacientesYMedicos(unittest.TestCase):
         mock_print.assert_any_call('Error: No se pueden ingresar datos vacios')
     @patch(
         'builtins.input',
-        side_effect=['4', 'Cirujano' ,'Lunes', 'Martes', 'Miercoles','fin', 
-                     '2', '123','Tomas Villar', 'Cirujano','fin',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin', 'fin',
                      '0'])
     def test_registro_medico_especialidad(self, patch_input):
         self.__cli__.ejecutar()
@@ -70,10 +70,9 @@ class TestPacientesYMedicos(unittest.TestCase):
         self.assertEqual(medico._Medico__especialidades[0].obtener_especialidad(), 'Cirujano')
     @patch(
         'builtins.input',
-        side_effect=['4', 'Cirujano' ,'Lunes', 'Martes', 'Miercoles','fin', 
-                     '4', 'Pediatra' , 'Martes', 'Jueves','fin',
-                     '2', '123','Tomas Villar', 'Cirujano','Pediatra', 'fin',
-                     '2', '456', 'Juan Perez', 'Pediatra', 'fin',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin','Pediatra', 'Viernes', 'fin','fin',
+                     '2', '456', 'Juan Perez', 'Dermatologo', 'Martes','Jueves','fin','fin',
                      '0'])
     
     def test_registro_medico_especialidad_complejo(self, patch_input):
@@ -87,18 +86,43 @@ class TestPacientesYMedicos(unittest.TestCase):
         medico = self.__cli__.clinica.get_medico('456')
         self.assertIsNotNone(medico)
         self.assertEqual(medico._Medico__nombre, 'Juan Perez')
-        self.assertEqual(medico._Medico__especialidades[0].obtener_especialidad(), 'Pediatra')
+        self.assertEqual(medico._Medico__especialidades[0].obtener_especialidad(), 'Dermatologo')
 
     @patch(
         'builtins.input',
-        side_effect=['4', 'Cirujano' ,'Lunes', 'Martes', 'Miercoles','fin', 
-                     '2', '123','Tomas Villar', 'Cirujano', 'fin',
-                     '2', '456', 'Juan Perez', 'Cirujano', 'fin',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano', 'Lunes', 'fin','fin',
+                     '2', '123', 'Juan Perez', 'Dermatologo', 'Miercoles', 'fin', 'fin',
                      '0'])
     @patch('builtins.print')
     def test_registro_medico_especialidad_duplicado(self, mock_print, mock_input):
         self.__cli__.ejecutar()
-        mock_print.assert_any_call("Error: Médico con matrícula 123 ya existe")
+        mock_print.assert_any_call('Error: Médico con matrícula 123 ya existe')
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2','' ,'Tomas Villar', 'Cirujano', 'Lunes', 'fin','fin','0'])
+    @patch('builtins.print')
+    def test_registro_medico_vacio_matricula(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: No se pueden ingresar datos vacios')
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2','123' ,'Tomas Villar', '', 'Lunes', 'fin','fin','0'])
+    @patch('builtins.print')
+    def test_registro_medico_vacio_espcialidad(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: Cada especialidad debe tener un tipo y al menos un día')
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2','123' ,'Tomas Villar', 'Cirujano', 'fin','fin','0'])
+    @patch('builtins.print')
+    def test_registro_medico_vacio_dias(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: Cada especialidad debe tener un tipo y al menos un día')
+
         
 
         
