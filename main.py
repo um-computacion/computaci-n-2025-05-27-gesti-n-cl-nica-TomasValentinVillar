@@ -8,7 +8,16 @@ class MedicoNoExisteError(Exception):
 
 class TurnoDuplicadoError(Exception):
     pass
-
+class PacienteYaExisteError(Exception):
+    pass
+class PacienteDatosVaciosError(Exception):
+    pass
+class MedicoYaExisteError(Exception):
+    pass
+class MedicoDatosVaciosError(Exception):
+    pass
+class EspecialidadNoExisteError(Exception):
+    pass
 class Paciente:
     def __init__(self, dni:str, nombre:str, fecha_nacimiento:str):
         self.__dni = dni
@@ -19,30 +28,56 @@ class Paciente:
     def __str__(self) -> str:
         return f"Paciente: DNI: {self.__dni} Nombre: {self.__nombre} Fechad de Nacimiento: {self.__fecha_nacimiento}"
 
+
+class Especialidad:
+    def __init__(self, tipo:str, dias:list[str]):
+        self.__tipo = tipo
+        self.__dias = dias
+
+    def obtener_especialidad(self) -> str:
+        return self.__tipo
+    def verificar_dia(self,dia):
+        dia = dia.lower()
+        if dia in self.__dias:
+            return True
+        else:
+            return False
+    def __str__(self):
+        return f'{self.__tipo}(Dias {self.__dias}'
+
 class Medico:
-    def __init__(self, matricula:str, nombre:str, especialidad:str):
+    def __init__(self, matricula:str, nombre:str, especialidades:list[Especialidad]):
         self.__matricula = matricula
         self.__nombre = nombre
-        self.__especialidad = especialidad
+        self.__especialidades = especialidades 
+    def agrgar_especialidad(self, especialidad : Especialidad):
+        self.__especialidades.append(especialidad)
+
     def obtener_matricula(self) -> str:
         return self.__matricula
     def __str__(self) -> str:
-        return f"Medico: Matricula: {self.__matricula} Nombre: {self.__nombre} Especialidad: {self.__especialidad}"
+        return f"Medico: Matricula: {self.__matricula} Nombre: {self.__nombre} Especialidades: {self.__especialidades}"
 
 
 class Turno:
-    def __init__(self,paciente:Paciente,medico:Medico,fecha_hora:datetime):
+    def __init__(self,paciente:Paciente,medico:Medico,fecha_hora:datetime, especiadad : str):
         self.__paciente = paciente.obtener_dni()
         self.__medico = medico.obtener_matricula()
         self.__fecha_hora = fecha_hora
+        self.__especialidad = especiadad
+
+
+    def obtener_medico(self):
+        return self.__medico
     
     def obtener_fecha_hora(self) -> datetime:
         return self.__fecha_hora
+
     def __str__(self) -> str:
         return f"Turno: Paciente: {self.__paciente} Medico: {self.__medico} Fecha y hora: {self.__fecha_hora}"
 
 class Receta:
-    def __init__(self,paciente:Paciente,medico:Medico,medicamentos:list[str],fecha:datetime):
+    def __init__(self,paciente:Paciente,medico:Medico,medicamentos:list[str],fecha:datetime): #en cosigna dice dice datetime.now()
         self.__paciente = paciente.obtener_dni()
         self.__medico = medico.obtener_matricula()
         self.__medicamentos = medicamentos
@@ -53,7 +88,7 @@ class Receta:
 
     def __str__(self) -> str:
        return f"Receta: Paciente: {self.__paciente} Medico: {self.__medico} Medicamentos:{self.__medicamentos} Fecha: {self.__fecha}"
-    
+#revisar historia clinica el tema de que casi no se usa el dni
 class HistoriaClinica:
     def __init__(self, dni):
        
@@ -82,6 +117,7 @@ class Clinica:
     
         self.__pacientes = {}
         self.__medicos = {}
+        #self.__especialidades = {} # preguntar si esta bien agregar esto que no estaba en la consigna
         self.__turnos = []
 
         self.__historias_clinicas = {}
@@ -90,6 +126,11 @@ class Clinica:
         dni = paciente.obtener_dni()
         self.__pacientes[dni] = paciente
         self.__historias_clinicas[dni] = HistoriaClinica(dni)
+    
+    def agregar_especialidades(self, especialidad): #creo que no se usa quitar 
+
+        tipo = especialidad.obtener_especialidad()
+        self.__especialidades[tipo] = especialidad
 
     def agregar_medico(self, medico):
 
@@ -112,12 +153,21 @@ class Clinica:
         historia = self.__historias_clinicas[dni]
         historia.agregar_receta(receta)
         return f'Receta emitida: Paciente: {dni} Medico: {matricula} Medicamentos:{medicamentos_} Fecha {fecha_hora}'
-    def validar_paciente(self,dni):
-        if dni not in self.__pacientes:
-            raise PacienteNoExisteError(f"Paciente con DNI {dni} no existe")
-    def validar_medico(self,matricula):
-        if matricula not in self.__medicos:
-            raise MedicoNoExisteError(f"Médico con matrícula {matricula} no existe")
+    
+    def validar_paciente(self,dni,nombre,fecha_nac):
+        if dni in self.__pacientes:
+            raise PacienteYaExisteError(f"Paciente con DNI {dni} ya existe")
+        if not dni or not nombre or not fecha_nac:
+            raise PacienteDatosVaciosError("No se pueden ingresar datos vacios")
+            
+        
+    def validar_medico(self,matricula,nombre,especialidad):
+        if matricula in self.__medicos:
+            raise MedicoYaExisteError(f"Médico con matrícula {matricula} ya existe")
+        if not matricula or not nombre or not especialidad:
+            raise MedicoDatosVaciosError('No se pueden ingresar datos vacios')
+        
+
     
     def get_paciente(self,dni):
         if dni in self.__pacientes:
@@ -129,6 +179,12 @@ class Clinica:
             return self.__medicos[matricula]
         else:
             raise MedicoNoExisteError(f"Médico con matrícula {matricula} no existe")
+    def get_especialidad(self,tipo):
+        if tipo in self.__especialidades:
+            return self.__especialidades[tipo]
+        else:
+            raise EspecialidadNoExisteError(f"Especialidad de tipo {tipo} no existe")
+    
     def revisar_turno(self, matricula, fecha_hora):
         for turno in self.__turnos:  
             if matricula == turno.medico and fecha_hora == turno.fecha_hora: 
@@ -175,18 +231,19 @@ class Clinica:
 class CLI:
     def __init__(self):
         self.clinica = Clinica()
-    
+    #se debe salir con 0
     def mostrar_menu(self):
         print("\nMenu Clinica:")
         print("1. Agregar paciente")
         print("2. Agregar médico")
         print("3. Agendar turno")
-        print("4. Emitir receta")
-        print("5. Ver historia clínica")
-        print("6. Ver todos los turnos")
-        print("7. Ver todos los pacientes")
-        print("8. Ver todos los médicos")
-        print("9. Salir")
+        print("4. Agrgar Especialidad")
+        print("5. Emitir receta")
+        print("6. Ver historia clínica")
+        print("7. Ver todos los turnos")
+        print("8. Ver todos los pacientes")
+        print("9. Ver todos los médicos")
+        print("0. Salir")
     
     def ejecutar(self):
         print("=== SISTEMA DE CLÍNICA ===")
@@ -194,20 +251,43 @@ class CLI:
         while True:
             self.mostrar_menu()
             opcion = input("\nSeleccione una opción: ")
-            
+            #poner .strip() para eliminar espacios al principio y al final
             try:
                 if opcion == "1":
                     dni = input("DNI del paciente: ")
                     nombre = input("Nombre del paciente: ")
                     fecha_nac = input("Fecha de nacimiento: ")
+                    self.clinica.validar_paciente(dni,nombre,fecha_nac)
                     paciente = Paciente(dni, nombre, fecha_nac)
                     self.clinica.agregar_paciente(paciente)
+                    
                 
                 elif opcion == "2":
                     matricula = input("Matrícula del médico: ")
                     nombre = input("Nombre del médico: ")
-                    especialidad = input("Especialidad: ")
-                    medico = Medico(matricula, nombre, especialidad)
+                    especialidades = []
+                    #estos bucles deberian estar en Clinica
+                    print("Ingrese las especialidades (fin para terminar): ")
+                    while True:
+                        
+                        tipo = input('Espacialidad: ')
+                        if tipo == 'fin':
+                            break
+                        else:
+                            print(f"Ingrese días de Atención de la especialidad {tipo}(escriba 'fin' para terminar):")
+                            dias = []
+                            while True:
+                                dia = input("Día: ").lower().strip()
+                                if dia == 'fin':
+                                    break
+                                dias.append(dia)
+                            especialidad = Especialidad(tipo,dias)
+                        especialidades.append(especialidad)
+                        #especialidad = self.clinica.get_especialidad(tipo)
+                        
+                    
+                    self.clinica.validar_medico(matricula,nombre,especialidades)
+                    medico = Medico(matricula, nombre, especialidades)
                     self.clinica.agregar_medico(medico)
                 
                 elif opcion == "3":
@@ -223,8 +303,13 @@ class CLI:
                     fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M") #fijarse que significa esto o cambiar por algo facil
                     self.clinica.revisar_turno(matricula, fecha_hora)
                     self.clinica.agendar_turno(paciente, medico, fecha_hora)
-                
                 elif opcion == "4":
+                    tipo = input("Nombre de Especialidad: ")
+
+                    
+                    especialidad = Especialidad(tipo,dias)
+                    self.clinica.agregar_especialidades(especialidad)
+                elif opcion == "5":
                     dni = input("DNI del paciente: ")
                     matricula = input("Matrícula del médico: ")
                     
@@ -255,21 +340,21 @@ class CLI:
                     else:
                         print("No se ingresaron medicamentos")
                 
-                elif opcion == "5":
+                elif opcion == "6":
                     dni = input("DNI del paciente: ")
                     resultado = self.clinica.obtener_historia_clinica(dni)
                     print(resultado)
                 
-                elif opcion == "6":
+                elif opcion == "7":
                     self.clinica.ver_todos_los_turnos()
                 
-                elif opcion == "7":
+                elif opcion == "8":
                     self.clinica.ver_todos_los_pacientes()
                 
-                elif opcion == "8":
+                elif opcion == "9":
                     self.clinica.ver_todos_los_medicos()
                 
-                elif opcion == "9":
+                elif opcion == "0":
                     print("¡Hasta luego!")
                     break
                 
@@ -278,14 +363,19 @@ class CLI:
             
             except PacienteNoExisteError as e:
                 print(f"Error: {e}")
+            except PacienteYaExisteError as e:
+                print(f"Error: {e}")
             except MedicoNoExisteError as e:
                 print(f"Error: {e}")
             except TurnoDuplicadoError as e:
                 print(f"Error: {e}")
+            except PacienteDatosVaciosError as e:
+                print(f'Error: {e}')
             except ValueError as e:
                 print(f"Error en formato de fecha: {e}")
             except Exception as e:
                 print(f"Error inesperado: {e}")
+            
 
 # Para ejecutar el programa
 if __name__ == "__main__":
