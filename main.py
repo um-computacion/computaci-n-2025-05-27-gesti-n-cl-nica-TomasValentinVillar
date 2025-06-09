@@ -26,6 +26,8 @@ class EspecielidadDuplicadaError(Exception):
     pass
 class EspecialidadDiaInvalido(Exception):
     pass
+class NoSeIngresaronMedicamentosError(Exception):
+    pass
 class Paciente:
     def __init__(self, dni:str, nombre:str, fecha_nacimiento:str):
         self.__dni = dni
@@ -53,7 +55,8 @@ class Especialidad:
         else:
             return False
     def __str__(self):
-        return f'{self.__tipo}(Dias {self.__dias}'
+        dias_str = ", ".join(self.__dias)
+        return f'{self.__tipo} (Días: {dias_str})'
 
 class Medico:
     def __init__(self, matricula:str, nombre:str, especialidades:list[Especialidad]):
@@ -74,7 +77,8 @@ class Medico:
                 return especialidad.obtener_especialidad()
         return None
     def __str__(self) -> str:
-        return f"Medico: Matricula: {self.__matricula} Nombre: {self.__nombre} Especialidades: {self.__especialidades}"
+        especialidades_str = ", ".join(str(e) for e in self.__especialidades)
+        return f"Medico: Matricula: {self.__matricula} Nombre: {self.__nombre} Especialidades: [{especialidades_str}]"
 
 
 class Turno:
@@ -99,11 +103,11 @@ class Turno:
         return f"Turno: Paciente: {self.__paciente} Medico: {self.__medico} Fecha y hora: {self.__fecha_hora} Especialidad: {self.__especialidad}"
 
 class Receta:
-    def __init__(self,paciente:Paciente,medico:Medico,medicamentos:list[str],fecha:datetime): #en cosigna dice dice datetime.now()
+    def __init__(self,paciente:Paciente,medico:Medico,medicamentos:list[str]): #en cosigna dice dice datetime.now()
         self.__paciente = paciente.obtener_dni()
         self.__medico = medico.obtener_matricula()
         self.__medicamentos = medicamentos
-        self.__fecha = fecha
+        self.__fecha = datetime.now()
 
     def obtener_medicamentos(self):
         return self.__medicamentos
@@ -118,11 +122,11 @@ class HistoriaClinica:
         self.__recetas = [] 
         self.__dni = dni
     def agregar_turno(self, turno):
-        self.__turnos.append(str(turno))
+        self.__turnos.append(turno)
         return turno
     
     def agregar_receta(self, receta):
-        self.__recetas.append(str(receta))
+        self.__recetas.append(receta)
         return receta
     
     def obtener_turnos(self):
@@ -132,7 +136,9 @@ class HistoriaClinica:
         return self.__recetas
     
     def __str__(self):
-        return f"Historia Clinica: Paciente: {self.__paciente} Turnos: {self.__turnos} Recetas:{self.__recetas}"
+        turnos_str = "\n  ".join(str(turno) for turno in self.__turnos)
+        recetas_str = "\n  ".join(str(receta) for receta in self.__recetas)
+        return f"Historia Clinica:\nPaciente: {self.__dni}\nTurnos:\n  {turnos_str}\nRecetas:\n  {recetas_str}"
 
 class Clinica:
     def __init__(self):
@@ -173,15 +179,18 @@ class Clinica:
         
         medico.agrgar_especialidad(especialidad)
         
-    def emitir_recetas(self,paciente,medico,medicamentos,fecha_hora:datetime):
+    def emitir_recetas(self,paciente,medico,medicamentos):
         dni = paciente.obtener_dni()
         matricula = medico.obtener_matricula()
+
         medicamentos_ = medicamentos
+        if medicamentos == ['']:
+            raise NoSeIngresaronMedicamentosError("No se ingresaron medicamentos")
+        receta = Receta(paciente,medico,medicamentos)
         
-        receta = Receta(paciente,medico,medicamentos,fecha_hora)
         historia = self.__historias_clinicas[dni]
         historia.agregar_receta(receta)
-        return f'Receta emitida: Paciente: {dni} Medico: {matricula} Medicamentos:{medicamentos_} Fecha {fecha_hora}'
+        return f'Receta emitida: Paciente: {dni} Medico: {matricula} Medicamentos:{medicamentos_} Fecha {receta._Receta__fecha}'
     
     def validar_paciente(self,dni,nombre,fecha_nac):
         if dni in self.__pacientes:
@@ -261,12 +270,12 @@ class Clinica:
 
     def obtener_historia_clinica(self,dni): 
 
-        
+        #paciente = self.get_paciente(dni)
         historia = self.__historias_clinicas[dni]
-        paciente = self.__pacientes[dni]
-        turnos = historia.obtener_turnos()
-        recetas = historia.obtener_recetas()
-        return f"Historia Clinica: DNI: {dni} Turnos: {turnos} Recetas:{recetas}"
+        #paciente = self.__pacientes[dni]
+        #turnos = historia.obtener_turnos()
+        #recetas = historia.obtener_recetas()
+        return historia
 
 # no pueden haber prints aca, tiene que estar en CLI
     def ver_todos_los_turnos(self):
@@ -396,28 +405,19 @@ class CLI:
                     matricula = input("Matrícula del médico: ")
                     
                     # Buscar paciente y médico
-                    if dni in self.clinica._Clinica__pacientes:
-                        paciente = self.clinica._Clinica__pacientes[dni]
-                    else:
-                        raise PacienteNoExisteError(f"Paciente con DNI {dni} no existe")
+                    paciente = self.clinica.get_paciente(dni)
+                    medico = self.clinica.get_medico(matricula)
                     
-                    if matricula in self.clinica._Clinica__medicos:
-                        medico = self.clinica._Clinica__medicos[matricula]
-                    else:
-                        raise MedicoNoExisteError(f"Médico con matrícula {matricula} no existe")
-                    
-                    print("Ingrese medicamentos (escriba 'fin' para terminar):")
                     medicamentos = []
                     while True:
                         med = input("Medicamento: ")
                         if med.lower() == 'fin':
                             break
                         medicamentos.append(med)
-                    fecha_str = input("Fecha y hora (YYYY-MM-DD HH:MM): ")
-                    fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M")
+                    
                     
                     if medicamentos:
-                        resultado = self.clinica.emitir_recetas(paciente, medico, medicamentos,fecha_hora)
+                        resultado = self.clinica.emitir_recetas(paciente, medico, medicamentos)
                         print(resultado)
                     else:
                         print("No se ingresaron medicamentos")
@@ -466,6 +466,8 @@ class CLI:
             except MedicoNoAtiendeEspecialidadError as e:
                 print(f'Error: {e}')
             except MedicoNoTieneEsaEspecialdad as e:
+                print(f'Error: {e}')
+            except NoSeIngresaronMedicamentosError as e:
                 print(f'Error: {e}')
             except ValueError as e:
                 print(f"Error en formato de fecha: {e}")

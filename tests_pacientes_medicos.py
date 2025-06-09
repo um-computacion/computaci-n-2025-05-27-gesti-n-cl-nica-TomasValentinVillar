@@ -25,10 +25,10 @@ class TestPacientesYMedicos(unittest.TestCase):
                      '1', '87654321', 'Tomas Villar','11/11/2005', 
                      '1', '13572468', 'pepe', '15/03/1990', '0'])
     def test_registro_exitoso_complejo(self, patch_input):
-        # Ejecutar el método que maneja el registro
-        self.__cli__.ejecutar()  # o tu método principal
         
-        # Verificar que el paciente se registró
+        self.__cli__.ejecutar() 
+        
+        
         paciente = self.__cli__.clinica.get_paciente('12345678')
         self.assertIsNotNone(paciente)
         self.assertEqual(paciente._Paciente__nombre, 'Juan Pérez')
