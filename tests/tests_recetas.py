@@ -1,7 +1,6 @@
 import unittest
-from main import Paciente, Medico, Turno, Receta, HistoriaClinica, Clinica, CLI, PacienteYaExisteError
-from datetime import datetime
 from unittest.mock import patch
+from src.cli import CLI
 
 class TestRecetas(unittest.TestCase):
     

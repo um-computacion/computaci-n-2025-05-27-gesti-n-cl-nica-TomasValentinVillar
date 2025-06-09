@@ -1,6 +1,7 @@
 import unittest
-from main import Paciente, Medico, Turno, Receta, HistoriaClinica, Clinica, CLI, PacienteYaExisteError
 from unittest.mock import patch
+from src.cli import CLI
+
 
 class TestPacientesYMedicos(unittest.TestCase):
 
@@ -11,8 +12,8 @@ class TestPacientesYMedicos(unittest.TestCase):
         'builtins.input',
         side_effect=['1', '12345678', 'Juan Pérez', '15/03/1990','0']
     )
-    def test_registro_exitoso(self, patch_input):
-        self.__cli__.ejecutar()  # o tu método principal
+    def test_registro_exitoso(self, ptach_input):
+        self.__cli__.ejecutar()
         
         paciente = self.__cli__.clinica.get_paciente('12345678')
         self.assertIsNotNone(paciente)

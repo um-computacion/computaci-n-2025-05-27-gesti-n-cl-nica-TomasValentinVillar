@@ -1,9 +1,9 @@
 import unittest
-from main import Paciente, Medico, Turno, Receta, HistoriaClinica, Clinica, CLI, PacienteYaExisteError
-from datetime import datetime
 from unittest.mock import patch
+from datetime import datetime
+from src.cli import CLI
 
-class TestRecetas(unittest.TestCase):
+class TestHistoriaClinica(unittest.TestCase):
     
     def setUp(self):
         self.__cli__ = CLI()
@@ -29,5 +29,16 @@ class TestRecetas(unittest.TestCase):
         self.assertEqual(turno._Turno__paciente, '46866812')
         self.assertEqual(turno.obtener_fecha_hora(), datetime(2025,6,9,16,30))
         self.assertEqual(turno.obtener_especialidad_turno(), 'Cirujano')
+
+    @patch(
+    'builtins.input',
+    side_effect=[
+                 '1', '46866812','Juan Perez', '11/11/2005',
+                 '6', '47668128',
+                '0'])
+    @patch('builtins.print')
+    def test_paciente_no_existe_historia_clinica(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: Paciente con DNI 47668128 no existe')
 if __name__ == '__main__':
     unittest.main()
