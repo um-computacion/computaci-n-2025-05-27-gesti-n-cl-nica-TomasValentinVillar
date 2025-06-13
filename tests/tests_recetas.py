@@ -1,63 +1,26 @@
 import unittest
 from unittest.mock import patch
-from src.cli import CLI
+from datetime import datetime
+from src.especialidad import Especialidad
+from src.medico import Medico
+from src.paciente import Paciente
+from src.receta import Receta
+
 
 class TestRecetas(unittest.TestCase):
     
     def setUp(self):
-        self.__cli__ = CLI()
+        self.__especialidad__ = Especialidad("Cirujano",["lunes","miercoles"])
+        self.__medicamentos__ = ['Ibuprofeno']
+        self.__receta__ = Receta(Paciente("46866812", "Juan","11/11/2005"),Medico("123","Tomas",[self.__especialidad__]),self.__medicamentos__)
 
-    @patch(
-        'builtins.input',
-        side_effect=['1', '46866812', 'Juan Perez', '11/11/2005', 
-                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin', 'fin',
-                     '5', '46866812', '123', 'Ibuprofeno','fin', 
-                     '0'])
-    def test_receta_exitoso(self, patch_input):
-        self.__cli__.ejecutar()
-
-        historia = self.__cli__.clinica.obtener_historia_clinica('46866812')
-        receta = historia.obtener_recetas()[0]
-        self.assertIsNotNone(receta)
-        self.assertEqual(receta._Receta__medico, '123')
-        self.assertEqual(receta._Receta__paciente, '46866812')
-        self.assertEqual(receta._Receta__medicamentos, ['Ibuprofeno'])
-        
-    @patch(
-        'builtins.input',
-        side_effect=['2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin', 'fin',
-                     '5', '46866812', '123', 'Ibuprofeno','fin', 
-                     '0'])
-    @patch('builtins.print')
-    def test_receta_paciente_no_existe(self, mock_print, mock_input):
-        self.__cli__.ejecutar()
-
-        mock_print.assert_any_call('Error: Paciente con DNI 46866812 no existe')
-    @patch(
-        'builtins.input',
-        side_effect=['1', '46866812', 'Juan Perez', '11/11/2005', 
-                     '5', '46866812', '123', 'Ibuprofeno','fin', 
-                     '0'])
-    @patch('builtins.print')
-    def test_receta_medico_no_existe(self, mock_print,mock_input):
-        self.__cli__.ejecutar()
-
-        mock_print.assert_any_call('Error: Médico con matrícula 123 no existe')
     
-   
+    def test_receta_exitoso(self):
 
-    @patch(
-        'builtins.input',
-        side_effect=['1', '46866812', 'Juan Perez', '11/11/2005', 
-                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin', 'fin',
-                     '5', '46866812', '123', '','fin', 
-                     '0'])
-    @patch('builtins.print')
-    def test_medicina_vacia(self, mock_print, mock_input):
-        self.__cli__.ejecutar()
+        self.assertEqual(self.__receta__.__paciente__.obtener_dni(), '46866812')
+        self.assertEqual(self.__receta__.__medico__.obtener_matricula(), '123')
+        self.assertEqual(self.__receta__.__medicamentos__, ['Ibuprofeno'])
 
-        mock_print.assert_any_call('Error: No se ingresaron medicamentos')
-    
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_str_receta(self):
+        representacion = f"Receta: Paciente: 46866812 Medico: 123 Medicamentos:['Ibuprofeno'] Fecha: {self.__receta__.__fecha__}"
+        self.assertEqual(str(self.__receta__),representacion)

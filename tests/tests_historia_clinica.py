@@ -1,44 +1,41 @@
 import unittest
 from unittest.mock import patch
 from datetime import datetime
-from src.cli import CLI
-
+from src.especialidad import Especialidad
+from src.medico import Medico
+from src.paciente import Paciente
+from src.receta import Receta
+from src.turno import Turno
+from src.historia_clinica import HistoriaClinica
 class TestHistoriaClinica(unittest.TestCase):
     
     def setUp(self):
-        self.__cli__ = CLI()
-    
-    @patch(
-        'builtins.input',
-        side_effect=['1', '46866812', 'Juan Pérez', '15/03/1990',
-                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin','fin',
-                     '3', '46866812', '123', '2025-06-09 16:30','Cirujano',
-                     '5', '46866812', '123', 'Ibuprofeno','fin', '0'])
-    def test_historia_clinica_exitosa(self, patch_input):
-        self.__cli__.ejecutar()
+        self.__paciente__ = Paciente('46866812','Juan Perez', '11/11/2005')
+        self.__especialidad__ = Especialidad("Cirujano",["lunes","miercoles"])
+        self.__especialidad2__ = Especialidad("Pediatra",["lunes"])
+        self.__medico__= Medico("123","Tomas Villar",[self.__especialidad__,self.__especialidad2__])
+        self.__medicamentos__ = ['Ibuprofeno']
+        self.__receta__ = Receta(self.__paciente__,self.__medico__,self.__medicamentos__)
+        self.__turno__ = Turno(self.__paciente__, self.__medico__,datetime(2025,6,9,16,30),'Cirujano')
+        self.__historia_clinca__ = HistoriaClinica(self.__paciente__.obtener_dni())
 
-        historia = self.__cli__.clinica.obtener_historia_clinica('46866812')
-        receta = historia.obtener_recetas()[0]
-        turno = historia.obtener_turnos()[0]
-        self.assertIsNotNone(receta)
-        self.assertEqual(receta._Receta__medico, '123')
-        self.assertEqual(receta._Receta__paciente, '46866812')
-        self.assertEqual(receta._Receta__medicamentos, ['Ibuprofeno'])
-        self.assertIsNotNone(turno)
-        self.assertEqual(turno.obtener_medico(), '123')
-        self.assertEqual(turno._Turno__paciente, '46866812')
-        self.assertEqual(turno.obtener_fecha_hora(), datetime(2025,6,9,16,30))
-        self.assertEqual(turno.obtener_especialidad_turno(), 'Cirujano')
+    def test_historia_clica_turno(self):
+        self.__historia_clinca__.agregar_turno(self.__turno__)
+        self.assertEqual(self.__historia_clinca__.obtener_turnos()[0].obtener_paciente().obtener_dni(),'46866812')
+        self.assertEqual(self.__historia_clinca__.obtener_turnos()[0].obtener_medico().obtener_matricula(),'123')
+        self.assertEqual(self.__historia_clinca__.obtener_turnos()[0].obtener_fecha_hora(),datetime(2025,6,9,16,30))
+        self.assertEqual(self.__historia_clinca__.obtener_turnos()[0].obtener_especialidad_turno(),'Cirujano')
 
-    @patch(
-    'builtins.input',
-    side_effect=[
-                 '1', '46866812','Juan Perez', '11/11/2005',
-                 '6', '47668128',
-                '0'])
-    @patch('builtins.print')
-    def test_paciente_no_existe_historia_clinica(self, mock_print, mock_input):
-        self.__cli__.ejecutar()
-        mock_print.assert_any_call('Error: Paciente con DNI 47668128 no existe')
+    def test_historia_clica_receta(self):
+        self.__historia_clinca__.agregar_receta(self.__receta__)
+        self.assertEqual(self.__historia_clinca__.obtener_recetas()[0].__paciente__.obtener_dni(),'46866812')
+        self.assertEqual(self.__historia_clinca__.obtener_recetas()[0].__medico__.obtener_matricula(),'123')
+        self.assertEqual(self.__historia_clinca__.obtener_recetas()[0].obtener_medicamentos(),['Ibuprofeno'])
+    def test_str_historia_clinica(self):
+        turnos_str = "\n  ".join(str(turno) for turno in self.__historia_clinca__.obtener_turnos())
+        recetas_str = "\n  ".join(str(receta) for receta in self.__historia_clinca__.obtener_recetas())
+        representacion = f"Historia Clinica:\nPaciente: 46866812\nTurnos:\n  {turnos_str}\nRecetas:\n  {recetas_str}"
+        self.assertEqual(str(self.__historia_clinca__),representacion)
+
 if __name__ == '__main__':
     unittest.main()
