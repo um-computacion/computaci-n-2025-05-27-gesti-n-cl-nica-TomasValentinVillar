@@ -15,14 +15,17 @@ class Medico:
     def obtener_especialidades(self):
         return self.__especialidades__
     
-    def obtener_especialidad_para_dia(self, dia:str) -> str: #testear
+    def obtener_especialidad_para_dia(self, dia:str) -> str:
         especialidades = []
        
         for especialidad in self.__especialidades__:
             if especialidad.verificar_dia(dia) == True:
                 especialidades.append(especialidad.obtener_especialidad())
-    
-        return especialidades
+        
+        if especialidades == []:
+            return None
+        else:
+            return especialidades
     
     def __str__(self) -> str:
         especialidades_str = ", ".join(str(e) for e in self.__especialidades__)

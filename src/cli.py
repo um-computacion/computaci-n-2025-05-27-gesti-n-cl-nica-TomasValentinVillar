@@ -5,7 +5,7 @@ from src.especialidad import Especialidad
 
 from datetime import datetime
 from src.excepciones import (PacienteNoExisteError, PacienteDatosVaciosError,PacienteYaExisteError,MedicoDatosVaciosError, MedicoNoAtiendeEspecialidadError,MedicoNoExisteError, 
-TurnoDuplicadoError, EspecialidadNoExisteError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError)
+TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError)
 
 class CLI:
     def __init__(self):
@@ -49,7 +49,7 @@ class CLI:
                     print("Ingrese las especialidades (fin para terminar): ")
                     while True:
                         
-                        tipo = input('Espacialidad: ')
+                        tipo = input('Especialidad: ')
                         if tipo == 'fin':
                             break
                         else:
@@ -62,6 +62,7 @@ class CLI:
                                 dias.append(dia)
                             
                             especialidad = Especialidad(tipo,dias)
+                            self.clinica.validar_especialidad(especialidad)
                             self.clinica.validar_dias(especialidad)
                         especialidades.append(especialidad)
                         
@@ -81,9 +82,9 @@ class CLI:
                     medico = self.clinica.get_medico(matricula)
                     
                     
-                    fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M") #fijarse que significa esto o cambiar por algo facil
+                    fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M")
                     
-                    #self.clinica.revisar_turno(matricula, fecha_hora,especialidad)
+                    
                     self.clinica.agendar_turno(paciente, medico, fecha_hora,especialidad)
                 elif opcion == "4":
                     matricula = input("Matricula del Medico: ")
@@ -105,7 +106,7 @@ class CLI:
                     dni = input("DNI del paciente: ")
                     matricula = input("Matrícula del médico: ")
                     
-                    # Buscar paciente y médico
+       
                     paciente = self.clinica.get_paciente(dni)
                     medico = self.clinica.get_medico(matricula)
                     
@@ -177,8 +178,6 @@ class CLI:
                 print(f'Error: {e}')
             except EspecielidadDuplicadaError as e:
                 print(f'Error: {e}')    
-            except EspecialidadNoExisteError as e:
-                print(f'Error: {e}')
             except EspecialidadDiaInvalido as e:
                 print(f'Error: {e}')
             except MedicoNoAtiendeEspecialidadError as e:

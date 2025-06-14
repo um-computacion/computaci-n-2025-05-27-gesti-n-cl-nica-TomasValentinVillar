@@ -4,7 +4,7 @@ from src.medico import Medico
 from src.turno import Turno
 from datetime import datetime
 from src.excepciones import (PacienteNoExisteError, PacienteDatosVaciosError,PacienteYaExisteError,MedicoDatosVaciosError, MedicoNoAtiendeEspecialidadError,MedicoNoExisteError, 
-TurnoDuplicadoError, EspecialidadNoExisteError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError)
+TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError)
 
 class Clinica:
     def __init__(self):
@@ -37,10 +37,10 @@ class Clinica:
     def obtener_turnos(self):
         return self.__turnos__
     
-    def obtener_pacientes(self): #Hago este metodo para que el CLI pueda mostrar todos los pacientes
+    def obtener_pacientes(self):
         return self.__pacientes__
     
-    def obtener_medicos(self): #Hago este metodo para que el CLI pueda mostrar todos los medicos
+    def obtener_medicos(self):
         return self.__medicos__
 
     def agregar_especilidad_medico(self,medico,especialidad):
@@ -60,14 +60,14 @@ class Clinica:
         historia.agregar_receta(receta)
         return f'Receta emitida: Paciente: {dni} Medico: {matricula} Medicamentos:{medicamentos} Fecha {receta.__fecha__}'
     
-    def validar_paciente(self,dni,nombre,fecha_nac):
+    def validar_paciente(self,dni,nombre,fecha_nac): #equivale a validar_existencia_paciente
         if dni in self.__pacientes__:
             raise PacienteYaExisteError(f"Paciente con DNI {dni} ya existe")
         if not dni or not nombre or not fecha_nac:
             raise PacienteDatosVaciosError("No se pueden ingresar datos vacios")
             
         
-    def validar_medico(self,matricula,nombre,especialidades):
+    def validar_medico(self,matricula,nombre,especialidades): #equivale a validar_existencia_medico
         if matricula in self.__medicos__:
             raise MedicoYaExisteError(f"Médico con matrícula {matricula} ya existe")
         if not matricula or not nombre or not especialidades:
@@ -95,6 +95,8 @@ class Clinica:
             especialidades.append(especialidad.obtener_especialidad())
         if especialidad_solicitada not in especialidades:
             raise MedicoNoTieneEsaEspecialdad(f"El medico no tiene la especialidad {especialidad_solicitada}")
+        if medico.obtener_especialidad_para_dia(dia_semana) == None:
+            raise MedicoNoAtiendeEspecialidadError(f"El medico no atiende la especialidad {especialidad_solicitada} los dias {dia_semana}")
         if especialidad_solicitada not in medico.obtener_especialidad_para_dia(dia_semana):
             raise MedicoNoAtiendeEspecialidadError(f"El medico no atiende la especialidad {especialidad_solicitada} los dias {dia_semana}")
         
@@ -120,7 +122,7 @@ class Clinica:
             raise MedicoNoExisteError(f"Médico con matrícula {matricula} no existe")
     
     
-    def revisar_turno(self, matricula, fecha_hora, especialidad):
+    def revisar_turno(self, matricula, fecha_hora, especialidad): #equivale a validar_turno_no_duplicado
         medico = self.get_medico(matricula)
         for turno in self.__turnos__:  
             if matricula == turno.obtener_medico().obtener_matricula() and fecha_hora == turno.obtener_fecha_hora(): 

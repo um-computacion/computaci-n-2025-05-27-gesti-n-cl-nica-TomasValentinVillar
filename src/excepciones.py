@@ -19,9 +19,6 @@ class MedicoYaExisteError(Exception):
 class MedicoDatosVaciosError(Exception):
     pass
 
-class EspecialidadNoExisteError(Exception):
-    pass
-
 class MedicoNoAtiendeEspecialidadError(Exception):
     pass
 class MedicoNoTieneEsaEspecialdad(Exception):
