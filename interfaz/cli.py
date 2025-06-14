@@ -5,12 +5,11 @@ from src.especialidad import Especialidad
 
 from datetime import datetime
 from src.excepciones import (PacienteNoExisteError, PacienteDatosVaciosError,PacienteYaExisteError,MedicoDatosVaciosError, MedicoNoAtiendeEspecialidadError,MedicoNoExisteError, 
-TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError)
+TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError)
 
 class CLI:
     def __init__(self):
         self.clinica = Clinica()
-    #se debe salir con 0
     def mostrar_menu(self):
         print("\nMenu Clinica:")
         print("1. Agregar paciente")
@@ -36,7 +35,9 @@ class CLI:
                     dni = input("DNI del paciente: ")
                     nombre = input("Nombre del paciente: ")
                     fecha_nac = input("Fecha de nacimiento: ")
+                    self.clinica.validar_dni(dni)
                     self.clinica.validar_paciente(dni,nombre,fecha_nac)
+                    self.clinica.validar_fecha_nacimiento(fecha_nac)
                     paciente = Paciente(dni, nombre, fecha_nac)
                     self.clinica.agregar_paciente(paciente)
                     
@@ -62,8 +63,10 @@ class CLI:
                                 dias.append(dia)
                             
                             especialidad = Especialidad(tipo,dias)
-                            self.clinica.validar_especialidad(especialidad)
+                            #arreglar para que no hallan especialidades duplicadas
+                            
                             self.clinica.validar_dias(especialidad)
+                            self.clinica.validar_especialidad_no_duplicada(especialidades,especialidad)
                         especialidades.append(especialidad)
                         
                     
@@ -185,6 +188,8 @@ class CLI:
             except MedicoNoTieneEsaEspecialdad as e:
                 print(f'Error: {e}')
             except NoSeIngresaronMedicamentosError as e:
+                print(f'Error: {e}')
+            except DNIInvalidoError as e:
                 print(f'Error: {e}')
             except ValueError as e:
                 print(f"Error en formato de fecha: {e}")

@@ -32,3 +32,6 @@ class EspecialidadDiaInvalido(Exception):
 
 class NoSeIngresaronMedicamentosError(Exception):
     pass
+
+class DNIInvalidoError(Exception):
+    pass

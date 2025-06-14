@@ -2,7 +2,7 @@ from datetime import datetime
 import unittest
 from unittest.mock import patch
 from src.excepciones import PacienteYaExisteError
-from src.cli import CLI
+from interfaz.cli import CLI
 from src.clinica import Clinica
 
 
@@ -56,11 +56,36 @@ class TestPacientesYMedicosCLI(unittest.TestCase):
     
     @patch(
         'builtins.input',
-        side_effect=['1', '', '', '','0'])
+        side_effect=['1', '46866812', '', '','0'])
     @patch('builtins.print')
     def test_registro_vacio_cli(self, mock_print, mock_input):
         self.__cli__.ejecutar()
         mock_print.assert_any_call('Error: No se pueden ingresar datos vacios')
+    
+    @patch(
+        'builtins.input',
+        side_effect=['1', '46866812', 'Juan Perez', '11-11-2005','0'])
+    @patch('builtins.print')
+    def test_registro_fecha_invalida_cli(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error en formato de fecha: La fecha de nacimiento debe estar en formato dd/mm/aaaa')
+
+    @patch(
+        'builtins.input',
+        side_effect=['1', '468', 'Juan Perez', '11/11/2005','0'])
+    @patch('builtins.print')
+    def test_registro_dni_invalido_digitos_cli(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: El DNI debe tener exactamente 8 dígitos')
+
+    @patch(
+        'builtins.input',
+        side_effect=['1', 'aaaaaaaa', 'Juan Perez', '11/11/2005','0'])
+    @patch('builtins.print')
+    def test_registro_dni_invalido_digitos_cli(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: El DNI solo puede contener números')
+    
     @patch(
         'builtins.input',
         side_effect=[
@@ -74,6 +99,18 @@ class TestPacientesYMedicosCLI(unittest.TestCase):
         self.assertEqual(medico.__nombre__, 'Tomas Villar')
         self.assertEqual(medico.__matricula__, '123')
         self.assertEqual(medico.__especialidades__[0].obtener_especialidad(), 'Cirujano')
+
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin', 'Cirujano', 'jueves','fin','fin',
+                     '0'])
+    @patch('builtins.print')
+
+    def test_registro_medico_especialidad_duplicada_cli(self, mock_print,mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: No se puede agregar especialidad por que ya existe')
+        
     @patch(
         'builtins.input',
         side_effect=[

@@ -4,7 +4,7 @@ from src.medico import Medico
 from src.turno import Turno
 from datetime import datetime
 from src.excepciones import (PacienteNoExisteError, PacienteDatosVaciosError,PacienteYaExisteError,MedicoDatosVaciosError, MedicoNoAtiendeEspecialidadError,MedicoNoExisteError, 
-TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError)
+TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError)
 
 class Clinica:
     def __init__(self):
@@ -76,9 +76,33 @@ class Clinica:
         for esp in especialidades:
             if not esp.obtener_especialidad().strip() or not esp.obtener_dias():
                 raise MedicoDatosVaciosError('Cada especialidad debe tener un tipo y al menos un día')
+    
+    def validar_fecha_nacimiento(self,fecha):
+        try:
+            datetime.strptime(fecha, "%d/%m/%Y")
+            return True
+        except ValueError:
+            raise ValueError('La fecha de nacimiento debe estar en formato dd/mm/aaaa')
+
+    def validar_dni(self,dni):
+
+        if len(dni) != 8:
+            raise DNIInvalidoError("El DNI debe tener exactamente 8 dígitos")
+    
+        if not dni.isdigit():
+            raise DNIInvalidoError("El DNI solo puede contener números")
+    
+        return True
+
     def validar_especialidad(self,medico,especialidad):
         for esp in medico.obtener_especialidades():
             if esp.obtener_especialidad() == especialidad.obtener_especialidad():
+                raise EspecielidadDuplicadaError('No se puede agregar especialidad por que ya existe')
+    
+    def validar_especialidad_no_duplicada(self,especialidadades,especialidad): #la diferencia de este con el anteriror es que este sirve para el momento de crear un medico y no para agregar especialidad a medico existente 
+
+        for esp in especialidadades:
+            if especialidad.obtener_especialidad() == esp.obtener_especialidad():
                 raise EspecielidadDuplicadaError('No se puede agregar especialidad por que ya existe')
 
 

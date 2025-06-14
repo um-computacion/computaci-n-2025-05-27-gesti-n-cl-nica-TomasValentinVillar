@@ -5,7 +5,7 @@ from src.especialidad import Especialidad
 from src.medico import Medico
 from src.paciente import Paciente
 from src.excepciones import (PacienteNoExisteError, PacienteDatosVaciosError,PacienteYaExisteError,MedicoDatosVaciosError, MedicoNoAtiendeEspecialidadError,MedicoNoExisteError, 
-TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError)
+TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError)
 
 
 class TestClinica(unittest.TestCase):
@@ -116,10 +116,37 @@ class TestClinica(unittest.TestCase):
             Medico('123','Tomas',especialidad)
             self.__clinica__.validar_medico('123','Tomas',[especialidad])
     
+    def test_valiadar_fecha_nacimiento(self):
+
+        self.assertTrue(self.__clinica__.validar_fecha_nacimiento('11/11/2005'))
+
+        with self.assertRaises(ValueError):
+            self.__clinica__.validar_fecha_nacimiento('11-11-2005')#o cualquier formato distinto a dd/mm/aaaa
+    
+    def test_validar_dni(self):
+
+        self.assertTrue(self.__clinica__.validar_dni('46866812'))
+        
+        with self.assertRaises(DNIInvalidoError):
+            self.__clinica__.validar_dni('468')
+        
+        with self.assertRaises(DNIInvalidoError):
+            self.__clinica__.validar_dni('aaaaaaaa')
+
     def test_validar_especialidad(self):
         with self.assertRaises(EspecielidadDuplicadaError):
             especialidad = Especialidad('Cirujano',['lunes','martes'])
             self.__clinica__.validar_especialidad(self.__medico__,especialidad)
+
+    def test_validar_especialidad_duplicada(self):
+        with self.assertRaises(EspecielidadDuplicadaError):
+            especialidad1 = Especialidad('Cirujano',['lunes','martes'])
+            especialidad2 = Especialidad('Pediatra',['miercoles'])
+            especialidades = [especialidad1,especialidad2]
+            especialidad3 = Especialidad('Cirujano',['lunes'])
+
+            self.__clinica__.validar_especialidad_no_duplicada(especialidades, especialidad3)
+
     def test_obtener_dia_de_la_semana(self):
         self.assertEqual(self.__clinica__.obtener_dia_semana_en_espanol(datetime(2025,6,9,16,30)),'lunes')
         self.assertEqual(self.__clinica__.obtener_dia_semana_en_espanol(datetime(2025,6,10,16,30)),'martes')
@@ -143,6 +170,15 @@ class TestClinica(unittest.TestCase):
             especialidad = Especialidad('Cirujano',['dias'])#los dias deben ser palabras distintas a los dias de la semana para pasar el test
             self.__clinica__.validar_dias(especialidad)
     
+    def test_get_paciente_exitoso(self):
+        self.__clinica__.agregar_paciente(self.__paciente__)
+        self.assertEqual(self.__clinica__.get_paciente('46866812'),self.__clinica__.__pacientes__['46866812'])
+    
+    def test_get_paciente_no_existe(self):
+        self.__clinica__.agregar_paciente(self.__paciente__)
+        with self.assertRaises(PacienteNoExisteError):
+                self.__clinica__.get_paciente('47866812')
+
     def test_get_medico_exitoso(self):
         self.__clinica__.agregar_medico(self.__medico__)
         self.assertEqual(self.__clinica__.get_medico('123'),self.__clinica__.__medicos__['123'])
