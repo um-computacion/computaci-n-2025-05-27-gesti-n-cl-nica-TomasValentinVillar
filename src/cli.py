@@ -45,7 +45,7 @@ class CLI:
                     matricula = input("Matrícula del médico: ")
                     nombre = input("Nombre del médico: ")
                     especialidades = []
-                    #estos bucles deberian estar en Clinica
+                    
                     print("Ingrese las especialidades (fin para terminar): ")
                     while True:
                         
@@ -64,7 +64,6 @@ class CLI:
                             especialidad = Especialidad(tipo,dias)
                             self.clinica.validar_dias(especialidad)
                         especialidades.append(especialidad)
-                        #especialidad = self.clinica.get_especialidad(tipo)
                         
                     
                     self.clinica.validar_medico(matricula,nombre,especialidades)
