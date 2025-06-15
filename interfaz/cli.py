@@ -114,6 +114,8 @@ class CLI:
                     medico = self.__clinica__.obtener_medico_por_matricula(matricula)
                     
                     medicamentos = []
+
+                    print(f"Ingrese los Medicamentos de la receta (escriba 'fin' para terminar):")
                     while True:
                         med = input("Medicamento: ")
                         if med.lower() == 'fin':
@@ -130,7 +132,7 @@ class CLI:
                 elif opcion == "6":
                     dni = input("DNI del paciente: ")
                     paciente = self.__clinica__.get_paciente(dni)
-                    resultado = self.c__clinica__.obtener_historia_clinica(dni)
+                    resultado = self.__clinica__.obtener_historia_clinica(dni)
                     print(resultado)
                 
                 elif opcion == "7":
