@@ -18,7 +18,7 @@ class TestPacientesYMedicosCLI(unittest.TestCase):
     def test_registro_exitoso_cli(self, ptach_input):
         self.__cli__.ejecutar()
         
-        paciente = self.__cli__.clinica.get_paciente('12345678')
+        paciente = self.__cli__.__clinica__.get_paciente('12345678')
         self.assertIsNotNone(paciente)
         self.assertEqual(paciente.__nombre__, 'Juan Pérez')
         self.assertEqual(paciente.obtener_dni(), '12345678')
@@ -33,13 +33,13 @@ class TestPacientesYMedicosCLI(unittest.TestCase):
         self.__cli__.ejecutar() 
         
         
-        paciente = self.__cli__.clinica.get_paciente('12345678')
+        paciente = self.__cli__.__clinica__.get_paciente('12345678')
         self.assertIsNotNone(paciente)
         self.assertEqual(paciente.__nombre__, 'Juan Pérez')
-        paciente = self.__cli__.clinica.get_paciente('87654321')
+        paciente = self.__cli__.__clinica__.get_paciente('87654321')
         self.assertIsNotNone(paciente)
         self.assertEqual(paciente.__nombre__, 'Tomas Villar')
-        paciente = self.__cli__.clinica.get_paciente('13572468')
+        paciente = self.__cli__.__clinica__.get_paciente('13572468')
         self.assertIsNotNone(paciente)
         self.assertEqual(paciente.__nombre__, 'pepe')
     @patch(
@@ -49,8 +49,8 @@ class TestPacientesYMedicosCLI(unittest.TestCase):
                      '0'])
     
     @patch('builtins.print')
-    @patch('src.clinica.Clinica.validar_paciente', side_effect=[PacienteYaExisteError("Paciente con DNI 46866812 ya existe")]) 
-    def test_registro_duplicado_cli(self, mock_validar_paciente, mock_print, mock_input):
+    @patch('src.clinica.Clinica.validar_existencia_paciente', side_effect=[PacienteYaExisteError("Paciente con DNI 46866812 ya existe")]) 
+    def test_registro_duplicado_cli(self, mock_validar_existencia_paciente, mock_print, mock_input):
         self.__cli__.ejecutar()
         mock_print.assert_any_call("Error: Paciente con DNI 46866812 ya existe")
     
@@ -94,7 +94,7 @@ class TestPacientesYMedicosCLI(unittest.TestCase):
     def test_registro_medico_especialidad_cli(self, patch_input):
         self.__cli__.ejecutar()
 
-        medico = self.__cli__.clinica.get_medico('123')
+        medico = self.__cli__.__clinica__.obtener_medico_por_matricula('123')
         self.assertIsNotNone(medico)
         self.assertEqual(medico.__nombre__, 'Tomas Villar')
         self.assertEqual(medico.__matricula__, '123')
@@ -121,12 +121,12 @@ class TestPacientesYMedicosCLI(unittest.TestCase):
     def test_registro_medico_especialidad_complejo_cli(self, patch_input):
         self.__cli__.ejecutar()
 
-        medico = self.__cli__.clinica.get_medico('123')
+        medico = self.__cli__.__clinica__.obtener_medico_por_matricula('123')
         self.assertIsNotNone(medico)
         self.assertEqual(medico.__nombre__, 'Tomas Villar')
         self.assertEqual(medico.__especialidades__[0].obtener_especialidad(), 'Cirujano')
         self.assertEqual(medico.__especialidades__[1].obtener_especialidad(), 'Pediatra')
-        medico = self.__cli__.clinica.get_medico('456')
+        medico = self.__cli__.__clinica__.obtener_medico_por_matricula('456')
         self.assertIsNotNone(medico)
         self.assertEqual(medico.__nombre__, 'Juan Perez')
         self.assertEqual(medico.__especialidades__[0].obtener_especialidad(), 'Dermatologo')
@@ -182,7 +182,7 @@ class TestRecetasCLI(unittest.TestCase):
     def test_receta_exitoso_cli(self, patch_input):
         self.__cli__.ejecutar()
 
-        historia = self.__cli__.clinica.obtener_historia_clinica('46866812')
+        historia = self.__cli__.__clinica__.obtener_historia_clinica('46866812')
         receta = historia.obtener_recetas()[0]
         self.assertIsNotNone(receta)
         self.assertEqual(receta.__medico__.obtener_matricula(), '123')
@@ -237,7 +237,7 @@ class TestEspecialidadesCLI(unittest.TestCase):
 
         self.__cli__.ejecutar()
 
-        medico = self.__cli__.clinica.get_medico('123')
+        medico = self.__cli__.__clinica__.obtener_medico_por_matricula('123')
         self.assertIsNotNone(medico)
         self.assertEqual(medico.__especialidades__[0].obtener_especialidad(), 'Cirujano')
         self.assertEqual(medico.__especialidades__[1].obtener_especialidad(), 'Pediatra')
@@ -296,7 +296,7 @@ class TestHistoriaClinicaCLI(unittest.TestCase):
     def test_historia_clinica_exitosa_cli(self, patch_input):
         self.__cli__.ejecutar()
 
-        historia = self.__cli__.clinica.obtener_historia_clinica('46866812')
+        historia = self.__cli__.__clinica__.obtener_historia_clinica('46866812')
         receta = historia.obtener_recetas()[0]
         turno = historia.obtener_turnos()[0]
         self.assertIsNotNone(receta)
@@ -334,7 +334,7 @@ class TestTurnosCLI(unittest.TestCase):
     def test_turno_exitoso_cli(self, patch_input):
         self.__cli__.ejecutar()
 
-        turnos = self.__cli__.clinica.obtener_turnos()
+        turnos = self.__cli__.__clinica__.obtener_turnos()
         self.assertIsNotNone(turnos[0])
         self.assertEqual(turnos[0].obtener_medico().obtener_matricula(), '123')
         self.assertEqual(turnos[0].obtener_paciente().obtener_dni(),'46866812') #como turno no tiene un metodo para obtenr paciente lo llamo de esa manera

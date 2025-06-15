@@ -9,7 +9,7 @@ TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, Espe
 
 class CLI:
     def __init__(self):
-        self.clinica = Clinica()
+        self.__clinica__ = Clinica()
     def mostrar_menu(self):
         print("\nMenu Clinica:")
         print("1. Agregar paciente")
@@ -35,11 +35,11 @@ class CLI:
                     dni = input("DNI del paciente: ")
                     nombre = input("Nombre del paciente: ")
                     fecha_nac = input("Fecha de nacimiento: ")
-                    self.clinica.validar_dni(dni)
-                    self.clinica.validar_paciente(dni,nombre,fecha_nac)
-                    self.clinica.validar_fecha_nacimiento(fecha_nac)
+                    self.__clinica__.validar_dni(dni)
+                    self.__clinica__.validar_existencia_paciente(dni,nombre,fecha_nac)
+                    self.__clinica__.validar_fecha_nacimiento(fecha_nac)
                     paciente = Paciente(dni, nombre, fecha_nac)
-                    self.clinica.agregar_paciente(paciente)
+                    self.__clinica__.agregar_paciente(paciente)
                     
                 
                 elif opcion == "2":
@@ -65,15 +65,15 @@ class CLI:
                             especialidad = Especialidad(tipo,dias)
                             #arreglar para que no hallan especialidades duplicadas
                             
-                            self.clinica.validar_dias(especialidad)
-                            self.clinica.validar_especialidad_no_duplicada(especialidades,especialidad)
+                            self.__clinica__.validar_dias(especialidad)
+                            self.__clinica__.validar_especialidad_no_duplicada(especialidades,especialidad)
                         especialidades.append(especialidad)
                         
                     
-                    self.clinica.validar_medico(matricula,nombre,especialidades)
+                    self.__clinica__.validar_existencia_medico(matricula,nombre,especialidades)
                     
                     medico = Medico(matricula, nombre, especialidades)
-                    self.clinica.agregar_medico(medico)
+                    self.__clinica__.agregar_medico(medico)
                 
                 elif opcion == "3":
                     dni = input("DNI del paciente: ")
@@ -81,20 +81,20 @@ class CLI:
                     fecha_str = input("Fecha y hora (YYYY-MM-DD HH:MM): ")
                     especialidad = input("Especialidad del turno: ")
                     
-                    paciente = self.clinica.get_paciente(dni)
-                    medico = self.clinica.get_medico(matricula)
+                    paciente = self.__clinica__.get_paciente(dni)
+                    medico = self.__clinica__.obtener_medico_por_matricula(matricula)
                     
                     
                     fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M")
                     
                     
-                    self.clinica.agendar_turno(paciente, medico, fecha_hora,especialidad)
+                    self.__clinica__.agendar_turno(paciente, medico, fecha_hora,especialidad)
                 elif opcion == "4":
                     matricula = input("Matricula del Medico: ")
                     tipo = input("Nombre de Especialidad: ")
                     print(f"Ingrese días de Atención de la especialidad {tipo}(escriba 'fin' para terminar):")
                     dias = []
-                    medico = self.clinica.get_medico(matricula)
+                    medico = self.__clinica__.obtener_medico_por_matricula(matricula)
                     while True:
                         dia = input("Día: ").lower().strip()
                         if dia == 'fin':
@@ -102,16 +102,16 @@ class CLI:
                         dias.append(dia)   
                     especialidad = Especialidad(tipo,dias)
 
-                    self.clinica.validar_especialidad(medico,especialidad)
-                    self.clinica.validar_dias(especialidad)
-                    self.clinica.agregar_especilidad_medico(medico,especialidad)
+                    self.__clinica__.validar_especialidad(medico,especialidad)
+                    self.__clinica__.validar_dias(especialidad)
+                    self.__clinica__.agregar_especilidad_medico(medico,especialidad)
                 elif opcion == "5":
                     dni = input("DNI del paciente: ")
                     matricula = input("Matrícula del médico: ")
                     
        
-                    paciente = self.clinica.get_paciente(dni)
-                    medico = self.clinica.get_medico(matricula)
+                    paciente = self.__clinica__.get_paciente(dni)
+                    medico = self.__clinica__.obtener_medico_por_matricula(matricula)
                     
                     medicamentos = []
                     while True:
@@ -122,40 +122,40 @@ class CLI:
                     
                     
                     if medicamentos:
-                        resultado = self.clinica.emitir_recetas(paciente, medico, medicamentos)
+                        resultado = self.__clinica__.emitir_recetas(paciente, medico, medicamentos)
                         print(resultado)
                     else:
                         print("No se ingresaron medicamentos")
                 
                 elif opcion == "6":
                     dni = input("DNI del paciente: ")
-                    paciente = self.clinica.get_paciente(dni)
-                    resultado = self.clinica.obtener_historia_clinica(dni)
+                    paciente = self.__clinica__.get_paciente(dni)
+                    resultado = self.c__clinica__.obtener_historia_clinica(dni)
                     print(resultado)
                 
                 elif opcion == "7":
-                    if not self.clinica.obtener_turnos():
+                    if not self.__clinica__.obtener_turnos():
                         print("No hay turnos agendados")
                     else:
                         print("\n=== TODOS LOS TURNOS ===")
-                    for turno in self.clinica.obtener_turnos():
+                    for turno in self.__clinica__.obtener_turnos():
                         print(turno)
                 
                 elif opcion == "8":
-                    if not self.clinica.obtener_pacientes().values():
+                    if not self.__clinica__.obtener_pacientes().values():
                         print("No hay pacientes registrados")
             
                     else:
                         print("\n=== TODOS LOS PACIENTES ===")
-                    for paciente in self.clinica.obtener_pacientes().values():
+                    for paciente in self.__clinica__.obtener_pacientes().values():
                         print(paciente)
                 
                 elif opcion == "9":
-                    if not self.clinica.obtener_medicos().values():
+                    if not self.__clinica__.obtener_medicos().values():
                         print("No hay medicos registrados")
                     else:
                         print("\n=== TODOS LOS MEDICOS ===")
-                    for medico in self.clinica.obtener_medicos().values():
+                    for medico in self.__clinica__.obtener_medicos().values():
                         print(medico)
                 
                 elif opcion == "0":

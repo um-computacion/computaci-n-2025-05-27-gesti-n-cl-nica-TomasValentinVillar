@@ -71,50 +71,50 @@ class TestClinica(unittest.TestCase):
         self.__clinica__.agregar_paciente(self.__paciente__)
 
         with self.assertRaises(PacienteYaExisteError):
-            self.__clinica__.validar_paciente("46866812", "Juan","11/11/2005")
+            self.__clinica__.validar_existencia_paciente("46866812", "Juan","11/11/2005")
     
     def test_validar_paciente_datos_vacios(self):
 
         with self.assertRaises(PacienteDatosVaciosError):
             Paciente('46866812','Juan','')
-            self.__clinica__.validar_paciente('46866812','Juan','')
+            self.__clinica__.validar_existencia_paciente('46866812','Juan','')
         with self.assertRaises(PacienteDatosVaciosError):
             Paciente('46866812','','11/11/2005')
-            self.__clinica__.validar_paciente('46866812','','11/11/2005')
+            self.__clinica__.validar_existencia_paciente('46866812','','11/11/2005')
         with self.assertRaises(PacienteDatosVaciosError):
             Paciente('','Juan','11/11/2005')
-            self.__clinica__.validar_paciente('','Juan','11/11/2005')
+            self.__clinica__.validar_existencia_paciente('','Juan','11/11/2005')
     
     def test_validar_medico_ya_existe(self):
 
         self.__clinica__.agregar_medico(self.__medico__)
 
         with self.assertRaises(MedicoYaExisteError):
-            self.__clinica__.validar_medico("123", "Tomas",[self.__especialidad__])
+            self.__clinica__.validar_existencia_medico("123", "Tomas",[self.__especialidad__])
     
     def test_validar_medico_datos_vacios(self):
 
         with self.assertRaises(MedicoDatosVaciosError):
             Medico('123','Tomas',[])
-            self.__clinica__.validar_medico('123','Tomas',[])
+            self.__clinica__.validar_existencia_medico('123','Tomas',[])
         with self.assertRaises(MedicoDatosVaciosError):
             Medico('123','',[self.__especialidad__])
-            self.__clinica__.validar_medico('123','',[self.__especialidad__])
+            self.__clinica__.validar_existencia_medico('123','',[self.__especialidad__])
         with self.assertRaises(MedicoDatosVaciosError):
             Medico('','Tomas',[self.__especialidad__])
-            self.__clinica__.validar_medico('','Tomas',[self.__especialidad__])
+            self.__clinica__.validar_existencia_medico('','Tomas',[self.__especialidad__])
     
     def test_validar_medico_especialidad(self):
         
         with self.assertRaises(MedicoDatosVaciosError):
             especialidad = Especialidad('',['lunes','miercoles'])
             Medico('123','Tomas',especialidad)
-            self.__clinica__.validar_medico('123','Tomas',[especialidad])
+            self.__clinica__.validar_existencia_medico('123','Tomas',[especialidad])
 
         with self.assertRaises(MedicoDatosVaciosError):
             especialidad = Especialidad('Dermatologo',[])
             Medico('123','Tomas',especialidad)
-            self.__clinica__.validar_medico('123','Tomas',[especialidad])
+            self.__clinica__.validar_existencia_medico('123','Tomas',[especialidad])
     
     def test_valiadar_fecha_nacimiento(self):
 
@@ -179,22 +179,23 @@ class TestClinica(unittest.TestCase):
         with self.assertRaises(PacienteNoExisteError):
                 self.__clinica__.get_paciente('47866812')
 
-    def test_get_medico_exitoso(self):
+    def test_obtener_medico_por_matricula_exitoso(self):
         self.__clinica__.agregar_medico(self.__medico__)
-        self.assertEqual(self.__clinica__.get_medico('123'),self.__clinica__.__medicos__['123'])
+        self.assertEqual(self.__clinica__.obtener_medico_por_matricula('123'),self.__clinica__.__medicos__['123'])
     
-    def test_get_medico_no_existe(self):
+    def test_obtener_medico_por_matricula_no_existe(self):
         self.__clinica__.agregar_medico(self.__medico__)
         with self.assertRaises(MedicoNoExisteError):
-                self.__clinica__.get_medico('456')
+                self.__clinica__.obtener_medico_por_matricula('456')
     
     def test_revisar_turno_duplicado(self): #los otros posibles problemas con los los turnos son testeados en test_medico_no_tiene_esa_especialidad y test_medico_no_atiende_ese_dia
         self.__clinica__.agregar_medico(self.__medico__)
         self.__clinica__.agregar_paciente(self.__paciente__)
+        self.__clinica__.agendar_turno(self.__paciente__,self.__medico__,datetime(2025,6,9,16,30),'Cirujano')
         paciente = Paciente('123','Sebastian', '02/06/1972')
         with self.assertRaises(TurnoDuplicadoError):
-            self.__clinica__.agendar_turno(self.__paciente__,self.__medico__,datetime(2025,6,9,16,30),'Cirujano')
-            self.__clinica__.agendar_turno(paciente,self.__medico__,datetime(2025,6,9,16,30),'Cirujano')
+            self.__clinica__.validar_turno_no_duplicado(self.__medico__.obtener_matricula(),datetime(2025,6,9,16,30),'Cirujano')
+
     
     def test_obtener_historia_clinica(self):
         self.__clinica__.agregar_paciente(self.__paciente__)

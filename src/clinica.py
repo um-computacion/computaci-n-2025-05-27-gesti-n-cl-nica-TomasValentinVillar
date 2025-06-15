@@ -29,7 +29,7 @@ class Clinica:
     def agendar_turno(self,paciente,medico,fecha_hora:datetime,especialidad):
         dni = paciente.obtener_dni()
         matricula = medico.obtener_matricula()
-        self.revisar_turno(matricula,fecha_hora,especialidad)
+        self.validar_turno_no_duplicado(matricula,fecha_hora,especialidad)
         turno = Turno(paciente,medico,fecha_hora,especialidad)
         self.__turnos__.append(turno)
         historia = self.__historias_clinicas__[dni]
@@ -60,14 +60,14 @@ class Clinica:
         historia.agregar_receta(receta)
         return f'Receta emitida: Paciente: {dni} Medico: {matricula} Medicamentos:{medicamentos} Fecha {receta.__fecha__}'
     
-    def validar_paciente(self,dni,nombre,fecha_nac): #equivale a validar_existencia_paciente
+    def validar_existencia_paciente(self,dni,nombre,fecha_nac):
         if dni in self.__pacientes__:
             raise PacienteYaExisteError(f"Paciente con DNI {dni} ya existe")
         if not dni or not nombre or not fecha_nac:
             raise PacienteDatosVaciosError("No se pueden ingresar datos vacios")
             
         
-    def validar_medico(self,matricula,nombre,especialidades): #equivale a validar_existencia_medico
+    def validar_existencia_medico(self,matricula,nombre,especialidades):
         if matricula in self.__medicos__:
             raise MedicoYaExisteError(f"Médico con matrícula {matricula} ya existe")
         if not matricula or not nombre or not especialidades:
@@ -113,7 +113,7 @@ class Clinica:
     
       
     
-    def validar_especialdiad_en_dia(self,medico : Medico,especialidad_solicitada, dia_semana): #si no puede ser entrada matricula y get_medico
+    def validar_especialdiad_en_dia(self,medico : Medico,especialidad_solicitada, dia_semana):
         especialidades = []
         for especialidad in medico.obtener_especialidades():
             especialidades.append(especialidad.obtener_especialidad())
@@ -139,15 +139,15 @@ class Clinica:
         else:
             raise PacienteNoExisteError(f"Paciente con DNI {dni} no existe")
         
-    def get_medico(self, matricula): #equivale a obtener_medico_por_matricula
+    def obtener_medico_por_matricula(self, matricula): #equivale a obtener_medico_por_matricula
         if matricula in self.__medicos__:
             return self.__medicos__[matricula]
         else:
             raise MedicoNoExisteError(f"Médico con matrícula {matricula} no existe")
     
     
-    def revisar_turno(self, matricula, fecha_hora, especialidad): #equivale a validar_turno_no_duplicado
-        medico = self.get_medico(matricula)
+    def validar_turno_no_duplicado(self, matricula, fecha_hora, especialidad):
+        medico = self.obtener_medico_por_matricula(matricula)
         for turno in self.__turnos__:  
             if matricula == turno.obtener_medico().obtener_matricula() and fecha_hora == turno.obtener_fecha_hora(): 
                 raise TurnoDuplicadoError("No se puede agendar un turno con el medico y la fecha_hora por que ya existe")
