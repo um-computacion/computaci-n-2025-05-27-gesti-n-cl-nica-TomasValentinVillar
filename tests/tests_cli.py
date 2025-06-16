@@ -66,9 +66,18 @@ class TestPacientesYMedicosCLI(unittest.TestCase):
         'builtins.input',
         side_effect=['1', '46866812', 'Juan Perez', '11-11-2005','0'])
     @patch('builtins.print')
+    def test_registro_fecha_formato_invalida_cli(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error en formato de fecha: La fecha de nacimiento debe estar en formato dd/mm/aaaa y debe ser valida')
+
+    @patch(
+        'builtins.input',
+        side_effect=['1', '46866812', 'Juan Perez', '11/20/2005','0'])
+    @patch('builtins.print')
     def test_registro_fecha_invalida_cli(self, mock_print, mock_input):
         self.__cli__.ejecutar()
-        mock_print.assert_any_call('Error en formato de fecha: La fecha de nacimiento debe estar en formato dd/mm/aaaa')
+        mock_print.assert_any_call('Error en formato de fecha: La fecha de nacimiento debe estar en formato dd/mm/aaaa y debe ser valida')
+
 
     @patch(
         'builtins.input',
@@ -253,6 +262,16 @@ class TestEspecialidadesCLI(unittest.TestCase):
     def test_registro_medico_especialidad_duplicado_cli(self, mock_print, mock_input):
         self.__cli__.ejecutar()
         mock_print.assert_any_call('Error: No se puede agregar especialidad por que ya existe')
+    
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin', 'fin',
+                     '4', '123', '', 'Viernes','fin','0'])
+    @patch('builtins.print')
+    def test_registro_medico_especialidad_vacio_cli(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: No se puede ingresar datos vacios')
     
     @patch(
         'builtins.input',

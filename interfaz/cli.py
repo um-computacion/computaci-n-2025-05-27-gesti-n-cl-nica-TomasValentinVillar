@@ -5,7 +5,7 @@ from src.especialidad import Especialidad
 
 from datetime import datetime
 from src.excepciones import (PacienteNoExisteError, PacienteDatosVaciosError,PacienteYaExisteError,MedicoDatosVaciosError, MedicoNoAtiendeEspecialidadError,MedicoNoExisteError, 
-TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError)
+TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError,EspecialidadTipoVacio)
 
 class CLI:
     def __init__(self):
@@ -192,6 +192,8 @@ class CLI:
             except NoSeIngresaronMedicamentosError as e:
                 print(f'Error: {e}')
             except DNIInvalidoError as e:
+                print(f'Error: {e}')
+            except EspecialidadTipoVacio as e:
                 print(f'Error: {e}')
             except ValueError as e:
                 print(f"Error en formato de fecha: {e}")

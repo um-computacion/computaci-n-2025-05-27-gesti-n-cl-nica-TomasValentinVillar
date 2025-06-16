@@ -35,3 +35,6 @@ class NoSeIngresaronMedicamentosError(Exception):
 
 class DNIInvalidoError(Exception):
     pass
+
+class EspecialidadTipoVacio(Exception):
+    pass

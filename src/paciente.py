@@ -1,7 +1,7 @@
 
 class Paciente:
     def __init__(self, dni:str, nombre:str, fecha_nacimiento:str):
-        self.__dni__ = dni #defino con doble guion bajo adelate y atras por así lo dice README
+        self.__dni__ = dni
         self.__nombre__ = nombre
         self.__fecha_nacimiento__ = fecha_nacimiento
     def obtener_dni(self) -> str:

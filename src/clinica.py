@@ -4,7 +4,7 @@ from src.medico import Medico
 from src.turno import Turno
 from datetime import datetime
 from src.excepciones import (PacienteNoExisteError, PacienteDatosVaciosError,PacienteYaExisteError,MedicoDatosVaciosError, MedicoNoAtiendeEspecialidadError,MedicoNoExisteError, 
-TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError)
+TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError, EspecialidadTipoVacio)
 
 class Clinica:
     def __init__(self):
@@ -82,7 +82,7 @@ class Clinica:
             datetime.strptime(fecha, "%d/%m/%Y")
             return True
         except ValueError:
-            raise ValueError('La fecha de nacimiento debe estar en formato dd/mm/aaaa')
+            raise ValueError('La fecha de nacimiento debe estar en formato dd/mm/aaaa y debe ser valida')#testear que no se ingresen dias y meses superiores a 31 y 12
 
     def validar_dni(self,dni):
 
@@ -98,6 +98,8 @@ class Clinica:
         for esp in medico.obtener_especialidades():
             if esp.obtener_especialidad() == especialidad.obtener_especialidad():
                 raise EspecielidadDuplicadaError('No se puede agregar especialidad por que ya existe')
+        if especialidad.obtener_especialidad() == '':
+            raise EspecialidadTipoVacio('No se puede ingresar datos vacios')#testear
     
     def validar_especialidad_no_duplicada(self,especialidadades,especialidad): #la diferencia de este con el anteriror es que este sirve para el momento de crear un medico y no para agregar especialidad a medico existente 
 
