@@ -356,7 +356,7 @@ class TestTurnosCLI(unittest.TestCase):
         turnos = self.__cli__.__clinica__.obtener_turnos()
         self.assertIsNotNone(turnos[0])
         self.assertEqual(turnos[0].obtener_medico().obtener_matricula(), '123')
-        self.assertEqual(turnos[0].obtener_paciente().obtener_dni(),'46866812') #como turno no tiene un metodo para obtenr paciente lo llamo de esa manera
+        self.assertEqual(turnos[0].obtener_paciente().obtener_dni(),'46866812')
         self.assertEqual(turnos[0].obtener_fecha_hora(), datetime(2025,6,9,16,30))
         self.assertEqual(turnos[0].obtener_especialidad_turno(), 'Cirujano')
     
