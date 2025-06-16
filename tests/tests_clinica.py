@@ -5,7 +5,7 @@ from src.especialidad import Especialidad
 from src.medico import Medico
 from src.paciente import Paciente
 from src.excepciones import (PacienteNoExisteError, PacienteDatosVaciosError,PacienteYaExisteError,MedicoDatosVaciosError, MedicoNoAtiendeEspecialidadError,MedicoNoExisteError, 
-TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError)
+TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError,EspecialidadTipoVacioError)
 
 
 class TestClinica(unittest.TestCase):
@@ -150,6 +150,14 @@ class TestClinica(unittest.TestCase):
     def test_validar_especialidad(self):
         with self.assertRaises(EspecielidadDuplicadaError):
             especialidad = Especialidad('Cirujano',['lunes','martes'])
+            self.__clinica__.validar_especialidad(self.__medico__,especialidad)
+        
+        with self.assertRaises(EspecialidadTipoVacioError):
+            especialidad = Especialidad('Dermatologo',[])
+            self.__clinica__.validar_especialidad(self.__medico__,especialidad)
+        
+        with self.assertRaises(EspecialidadTipoVacioError):
+            especialidad = Especialidad('',['lunes','martes'])
             self.__clinica__.validar_especialidad(self.__medico__,especialidad)
 
     def test_validar_especialidad_duplicada(self):

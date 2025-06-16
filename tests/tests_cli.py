@@ -295,11 +295,31 @@ class TestEspecialidadesCLI(unittest.TestCase):
         'builtins.input',
         side_effect=[
                      '2', '123','Tomas Villar', 'Cirujano','Lunes', 'miercoles','fin', 'fin',
-                     '4', '456', 'Pediatra', 'dia','fin','0'])
+                     '4', '456', 'Pediatra', 'viernes','fin','0'])
     @patch('builtins.print')
     def test_registro_especialidad_medico_no_existe_cli(self, mock_print, mock_input):
         self.__cli__.ejecutar()
         mock_print.assert_any_call('Error: Médico con matrícula 456 no existe')
+    
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'miercoles','fin', 'fin',
+                     '4', '123', '', 'viernes','fin','0'])
+    @patch('builtins.print')
+    def test_registro_especialidad_sin_nombre_cli(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: No se puede ingresar datos vacios')
+    
+    @patch(
+        'builtins.input',
+        side_effect=[
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'miercoles','fin', 'fin',
+                     '4', '123', 'Pediatra','fin','0'])
+    @patch('builtins.print')
+    def test_registro_especialidad_sin_dias_cli(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+        mock_print.assert_any_call('Error: No se puede ingresar dias vacios')
 
 class TestHistoriaClinicaCLI(unittest.TestCase):
     

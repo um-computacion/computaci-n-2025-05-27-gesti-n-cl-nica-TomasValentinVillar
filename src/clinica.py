@@ -4,7 +4,7 @@ from src.medico import Medico
 from src.turno import Turno
 from datetime import datetime
 from src.excepciones import (PacienteNoExisteError, PacienteDatosVaciosError,PacienteYaExisteError,MedicoDatosVaciosError, MedicoNoAtiendeEspecialidadError,MedicoNoExisteError, 
-TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError, EspecialidadTipoVacio)
+TurnoDuplicadoError,MedicoNoTieneEsaEspecialdad,EspecielidadDuplicadaError, EspecialidadDiaInvalido, NoSeIngresaronMedicamentosError, MedicoYaExisteError,DNIInvalidoError, EspecialidadTipoVacioError)
 
 class Clinica:
     def __init__(self):
@@ -106,7 +106,10 @@ class Clinica:
             if esp.obtener_especialidad() == especialidad.obtener_especialidad():
                 raise EspecielidadDuplicadaError('No se puede agregar especialidad por que ya existe')
         if especialidad.obtener_especialidad() == '':
-            raise EspecialidadTipoVacio('No se puede ingresar datos vacios')
+            raise EspecialidadTipoVacioError('No se puede ingresar datos vacios')
+        
+        if especialidad.obtener_dias() == []:
+            raise EspecialidadTipoVacioError('No se puede ingresar dias vacios')
     
     def validar_especialidad_no_duplicada(self,especialidadades,especialidad): #la diferencia de este con el anteriror es que este sirve para el momento de crear un medico y no para agregar especialidad a medico existente 
 
