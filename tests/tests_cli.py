@@ -420,5 +420,17 @@ class TestTurnosCLI(unittest.TestCase):
 
         mock_print.assert_any_call('Error: El medico no atiende la especialidad Cirujano los dias martes')
 
+    @patch(
+        'builtins.input',
+        side_effect=['1', '46866812', 'Juan Perez', '11/11/2005', 
+                     '2', '123','Tomas Villar', 'Cirujano','Lunes', 'Miercoles','fin', 'fin',
+                     '3', '46866812', '123', '2025/06/09 16:30','Cirujano',
+                     '0'])
+    @patch('builtins.print')
+    def test_tuno_fecha_ivalida_cli(self, mock_print, mock_input):
+        self.__cli__.ejecutar()
+
+        mock_print.assert_any_call('Error en formato de fecha: La fecha del turno debe estar en el formato AAAA-MM-DD HH:MM y debe ser valida')
+
 if __name__ == '__main__':
     unittest.main() 

@@ -18,7 +18,7 @@ class Clinica:
 
         dni = paciente.obtener_dni()
         self.__pacientes__[dni] = paciente
-        self.__historias_clinicas__[dni] = HistoriaClinica(dni)
+        self.__historias_clinicas__[dni] = HistoriaClinica(paciente)
     
 
     def agregar_medico(self, medico):
@@ -82,7 +82,14 @@ class Clinica:
             datetime.strptime(fecha, "%d/%m/%Y")
             return True
         except ValueError:
-            raise ValueError('La fecha de nacimiento debe estar en formato dd/mm/aaaa y debe ser valida')#testear que no se ingresen dias y meses superiores a 31 y 12
+            raise ValueError('La fecha de nacimiento debe estar en formato dd/mm/aaaa y debe ser valida')
+    
+    def validar_fecha_turno(self,fecha):
+        try:
+            datetime.strptime(fecha, "%Y-%m-%d %H:%M")
+            return True
+        except ValueError:
+            raise ValueError('La fecha del turno debe estar en el formato AAAA-MM-DD HH:MM y debe ser valida')
 
     def validar_dni(self,dni):
 
@@ -99,7 +106,7 @@ class Clinica:
             if esp.obtener_especialidad() == especialidad.obtener_especialidad():
                 raise EspecielidadDuplicadaError('No se puede agregar especialidad por que ya existe')
         if especialidad.obtener_especialidad() == '':
-            raise EspecialidadTipoVacio('No se puede ingresar datos vacios')#testear
+            raise EspecialidadTipoVacio('No se puede ingresar datos vacios')
     
     def validar_especialidad_no_duplicada(self,especialidadades,especialidad): #la diferencia de este con el anteriror es que este sirve para el momento de crear un medico y no para agregar especialidad a medico existente 
 
@@ -113,7 +120,8 @@ class Clinica:
         dias_semana = {0: "lunes",1: "martes",2: "miercoles",3: "jueves",4: "viernes",5: "sabado",6: "domingo"}
         return dias_semana[fecha_hora.weekday()]
     
-      
+    def obtener_especialidad_disponible(sefl,medico : Medico,dia_semana):
+        return medico.obtener_especialidad_para_dia(dia_semana)  
     
     def validar_especialdiad_en_dia(self,medico : Medico,especialidad_solicitada, dia_semana):
         especialidades = []
@@ -121,9 +129,9 @@ class Clinica:
             especialidades.append(especialidad.obtener_especialidad())
         if especialidad_solicitada not in especialidades:
             raise MedicoNoTieneEsaEspecialdad(f"El medico no tiene la especialidad {especialidad_solicitada}")
-        if medico.obtener_especialidad_para_dia(dia_semana) == None:
+        if self.obtener_especialidad_disponible(medico,dia_semana) == None:
             raise MedicoNoAtiendeEspecialidadError(f"El medico no atiende la especialidad {especialidad_solicitada} los dias {dia_semana}")
-        if especialidad_solicitada not in medico.obtener_especialidad_para_dia(dia_semana):
+        if especialidad_solicitada not in self.obtener_especialidad_disponible(medico,dia_semana):
             raise MedicoNoAtiendeEspecialidadError(f"El medico no atiende la especialidad {especialidad_solicitada} los dias {dia_semana}")
         
         
@@ -141,7 +149,7 @@ class Clinica:
         else:
             raise PacienteNoExisteError(f"Paciente con DNI {dni} no existe")
         
-    def obtener_medico_por_matricula(self, matricula): #equivale a obtener_medico_por_matricula
+    def obtener_medico_por_matricula(self, matricula):
         if matricula in self.__medicos__:
             return self.__medicos__[matricula]
         else:

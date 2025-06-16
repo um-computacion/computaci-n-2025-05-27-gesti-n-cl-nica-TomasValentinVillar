@@ -17,7 +17,7 @@ class TestHistoriaClinica(unittest.TestCase):
         self.__medicamentos__ = ['Ibuprofeno']
         self.__receta__ = Receta(self.__paciente__,self.__medico__,self.__medicamentos__)
         self.__turno__ = Turno(self.__paciente__, self.__medico__,datetime(2025,6,9,16,30),'Cirujano')
-        self.__historia_clinca__ = HistoriaClinica(self.__paciente__.obtener_dni())
+        self.__historia_clinca__ = HistoriaClinica(self.__paciente__)
 
     def test_historia_clica_turno(self):
         self.__historia_clinca__.agregar_turno(self.__turno__)

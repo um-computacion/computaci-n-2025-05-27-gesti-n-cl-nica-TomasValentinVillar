@@ -29,7 +29,6 @@ class CLI:
         while True:
             self.mostrar_menu()
             opcion = input("\nSeleccione una opción: ")
-            #poner .strip() para eliminar espacios al principio y al final
             try:
                 if opcion == "1":
                     dni = input("DNI del paciente: ")
@@ -63,7 +62,6 @@ class CLI:
                                 dias.append(dia)
                             
                             especialidad = Especialidad(tipo,dias)
-                            #arreglar para que no hallan especialidades duplicadas
                             
                             self.__clinica__.validar_dias(especialidad)
                             self.__clinica__.validar_especialidad_no_duplicada(especialidades,especialidad)
@@ -78,12 +76,13 @@ class CLI:
                 elif opcion == "3":
                     dni = input("DNI del paciente: ")
                     matricula = input("Matrícula del médico: ")
-                    fecha_str = input("Fecha y hora (YYYY-MM-DD HH:MM): ")
+                    fecha_str = input("Fecha y hora (AAAA-MM-DD HH:MM): ")
                     especialidad = input("Especialidad del turno: ")
                     
                     paciente = self.__clinica__.get_paciente(dni)
                     medico = self.__clinica__.obtener_medico_por_matricula(matricula)
-                    
+
+                    self.__clinica__.validar_fecha_turno(fecha_str)
                     
                     fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M")
                     

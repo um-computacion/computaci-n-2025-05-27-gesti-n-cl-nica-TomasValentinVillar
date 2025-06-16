@@ -122,6 +122,20 @@ class TestClinica(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             self.__clinica__.validar_fecha_nacimiento('11-11-2005')#o cualquier formato distinto a dd/mm/aaaa
+
+        with self.assertRaises(ValueError):
+            self.__clinica__.validar_fecha_nacimiento('11/20/2005')#dias o meses que se pasen de 31 o 12 respectivamente
+    
+    def test_validar_fecha_turno(self):
+
+        self.assertTrue(self.__clinica__.validar_fecha_turno('2025-11-11 16:30'))
+
+        with self.assertRaises(ValueError):
+            self.__clinica__.validar_fecha_turno('2025/11/11 16:30')#o cualquier formato distinto a dd/mm/aaaa
+
+        with self.assertRaises(ValueError):
+            self.__clinica__.validar_fecha_turno('2025-20-11 16:30')#dias o meses que se pasen de 31 o 12 respectivamente
+
     
     def test_validar_dni(self):
 
@@ -155,6 +169,12 @@ class TestClinica(unittest.TestCase):
         self.assertEqual(self.__clinica__.obtener_dia_semana_en_espanol(datetime(2025,6,13,16,30)),'viernes')
         self.assertEqual(self.__clinica__.obtener_dia_semana_en_espanol(datetime(2025,6,14,16,30)),'sabado')
         self.assertEqual(self.__clinica__.obtener_dia_semana_en_espanol(datetime(2025,6,15,16,30)),'domingo')
+
+    def test_obtener_especialidad_disponible(self):
+        self.assertEqual(self.__clinica__.obtener_especialidad_disponible(self.__medico__,'lunes'),['Cirujano'])
+        self.assertEqual(self.__clinica__.obtener_especialidad_disponible(self.__medico__,'viernes'),None)
+
+
     def test_medico_no_tiene_esa_especialidad(self):
             
         with self.assertRaises(MedicoNoTieneEsaEspecialdad):    
